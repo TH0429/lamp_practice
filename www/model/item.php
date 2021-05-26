@@ -1,4 +1,5 @@
 <?php
+//MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
 
