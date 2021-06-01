@@ -15,7 +15,7 @@ function get_db_connect(){
   }
   return $dbh;
 }
-//データベース内のクエリ呼び出し
+//データベース接続情報、実行したいsql文（SELECT文）を渡すとデータがある場合はそのデータを連想配列で返し、データがない場合はfalseを返す
 function fetch_query($db, $sql, $params = array()){
   try{
     $statement = $db->prepare($sql);
@@ -26,7 +26,7 @@ function fetch_query($db, $sql, $params = array()){
   }
   return false;
 }
-//データベースの全てのクエリ呼び出し
+//データベース接続情報、実行したいsql文（SELECT文）を渡すと全てのデータを連想配列で返し、データがない場合はfalseを返す
 function fetch_all_query($db, $sql, $params = array()){
   try{
     $statement = $db->prepare($sql);
@@ -37,7 +37,7 @@ function fetch_all_query($db, $sql, $params = array()){
   }
   return false;
 }
-//データベース内のクエリ実行
+//
 function execute_query($db, $sql, $params = array()){
   try{
     $statement = $db->prepare($sql);

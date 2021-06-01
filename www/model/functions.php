@@ -9,14 +9,14 @@ function redirect_to($url){
   header('Location: ' . $url);
   exit;
 }
-
+//get処理
 function get_get($name){
   if(isset($_GET[$name]) === true){
     return $_GET[$name];
   };
   return '';
 }
-
+//post処理
 function get_post($name){
   if(isset($_POST[$name]) === true){
     return $_POST[$name];
@@ -75,7 +75,7 @@ function get_messages(){
 function is_logined(){
   return get_session('user_id') !== '';
 }
-
+//画像をアップロードする
 function get_upload_filename($file){
   if(is_valid_upload_image($file) === false){
     return '';
@@ -88,11 +88,11 @@ function get_upload_filename($file){
 function get_random_string($length = 20){
   return substr(base_convert(hash('sha256', uniqid()), 16, 36), 0, $length);
 }
-
+//画像を保存する
 function save_image($image, $filename){
   return move_uploaded_file($image['tmp_name'], IMAGE_DIR . $filename);
 }
-
+//画像を消去する
 function delete_image($filename){
   if(file_exists(IMAGE_DIR . $filename) === true){
     unlink(IMAGE_DIR . $filename);
@@ -121,7 +121,7 @@ function is_valid_format($string, $format){
   return preg_match($format, $string) === 1;
 }
 
-
+//画像ファイル形式が指定されている形式と異なる場合、エラーメッセージを表示する
 function is_valid_upload_image($image){
   if(is_uploaded_file($image['tmp_name']) === false){
     set_error('ファイル形式が不正です。');
@@ -134,7 +134,7 @@ function is_valid_upload_image($image){
   }
   return true;
 }
-
+//htmlspecialcharsはオリジナルの関数hで示すことができる
 function h($str){
   return htmlspecialchars($str,ENT_QUOTES,'UTF-8');
 }
