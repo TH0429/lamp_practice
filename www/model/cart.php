@@ -132,7 +132,7 @@ function delete_user_carts($db, $user_id){
   execute_query($db, $sql);
 }
 
-//カート内の商品の合計金額を返す
+//カート情報を渡し、カート内の商品の合計金額を返す(値段×購入数)
 function sum_carts($carts){
   $total_price = 0;
   foreach($carts as $cart){
