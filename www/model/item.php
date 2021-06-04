@@ -116,6 +116,7 @@ function update_item_stock($db, $item_id, $stock){
   
   return execute_query($db, $sql, array($stock, $item_id));
 }
+
 function destroy_item($db, $item_id){
   $item = get_item($db, $item_id);
   if($item === false){
