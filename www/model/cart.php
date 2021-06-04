@@ -22,9 +22,9 @@ function get_user_carts($db, $user_id){
     ON
       carts.item_id = items.item_id
     WHERE
-      carts.user_id = {$user_id}
+      carts.user_id = ?
   ";
-  return fetch_all_query($db, $sql);
+  return fetch_all_query($db, $sql,array($user_id));
 }
 //DBの接続情報、ユーザーID、商品IDを渡してカート内の特定の商品の情報を返す
 function get_user_cart($db, $user_id, $item_id){
@@ -46,12 +46,12 @@ function get_user_cart($db, $user_id, $item_id){
     ON
       carts.item_id = items.item_id
     WHERE
-      carts.user_id = {$user_id}
+      carts.user_id = ?
     AND
-      items.item_id = {$item_id}
+      items.item_id = ?
   ";
 
-  return fetch_query($db, $sql);
+  return fetch_query($db, $sql, array($user_id, $item_id));
 
 }
 //カート内の商品の個数変更
@@ -71,10 +71,10 @@ function insert_cart($db, $user_id, $item_id, $amount = 1){
         user_id,
         amount
       )
-    VALUES({$item_id}, {$user_id}, {$amount})
+    VALUES(?, ?, ?)
   ";
 
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($item_id, $user_id, $amount));
 }
 //追加処理
 function update_cart_amount($db, $cart_id, $amount){
@@ -82,12 +82,12 @@ function update_cart_amount($db, $cart_id, $amount){
     UPDATE
       carts
     SET
-      amount = {$amount}
+      amount = ?
     WHERE
-      cart_id = {$cart_id}
+      cart_id = ?
     LIMIT 1
   ";
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($amount, $cart_id));
 }
 //カート内の商品を削除
 function delete_cart($db, $cart_id){
@@ -95,11 +95,11 @@ function delete_cart($db, $cart_id){
     DELETE FROM
       carts
     WHERE
-      cart_id = {$cart_id}
+      cart_id = ?
     LIMIT 1
   ";
 
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($cart_id));
 }
 //商品購入できるか検証（商品在庫が購入数を上回っていないか）
 function purchase_carts($db, $carts){
@@ -124,10 +124,10 @@ function delete_user_carts($db, $user_id){
     DELETE FROM
       carts
     WHERE
-      user_id = {$user_id}
+      user_id = ?
   ";
 
-  execute_query($db, $sql);
+  execute_query($db, $sql, array($user_id));
 }
 
 //カート内の商品の合計金額を表示
