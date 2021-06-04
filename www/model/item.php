@@ -17,10 +17,10 @@ function get_item($db, $item_id){
     FROM
       items
     WHERE
-      item_id = {$item_id}
+      item_id = ?
   ";
 
-  return fetch_query($db, $sql);
+  return fetch_query($db, $sql, array($item_id));
 }
 //データベース接続情報、公開されている商品情報を渡し公開されている商品情報を返す
 function get_items($db, $is_open = false){
@@ -83,10 +83,10 @@ function insert_item($db, $name, $price, $stock, $filename, $status){
         image,
         status
       )
-    VALUES('{$name}', {$price}, {$stock}, '{$filename}', {$status_value});
+    VALUES(?, ?, ?, ?, ?);
   ";
 
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($name, $price, $stock, $filename, $status_value));
 }
 //データベース接続情報、商品ID、商品情報を渡し商品情報を更新する
 function update_item_status($db, $item_id, $status){
@@ -94,13 +94,13 @@ function update_item_status($db, $item_id, $status){
     UPDATE
       items
     SET
-      status = {$status}
+      status = ?
     WHERE
-      item_id = {$item_id}
+      item_id = ?
     LIMIT 1
   ";
   
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($status, $item_id));
 }
 //データベース接続情報、商品ID、商品在庫数情報を渡し商品在庫を更新する
 function update_item_stock($db, $item_id, $stock){
@@ -108,13 +108,13 @@ function update_item_stock($db, $item_id, $stock){
     UPDATE
       items
     SET
-      stock = {$stock}
+      stock = ?
     WHERE
-      item_id = {$item_id}
+      item_id = ?
     LIMIT 1
   ";
   
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($stock, $item_id));
 }
 //データベース接続情報、商品IDを渡しトランザクションによって商品情報を破棄する
 function destroy_item($db, $item_id){
@@ -137,13 +137,12 @@ function delete_item($db, $item_id){
     DELETE FROM
       items
     WHERE
-      item_id = {$item_id}
+      item_id = ?
     LIMIT 1
   ";
   
-  return execute_query($db, $sql);
+  return execute_query($db, $sql, array($item_id));
 }
-
 
 // 非DB
 //商品情報を渡し公開されていれば公開されている商品情報（変数$is_open）として返す
