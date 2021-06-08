@@ -15,6 +15,14 @@ $name = get_post('name');
 $password = get_post('password');
 //データベース接続
 $db = get_db_connect();
+//トークン取得
+$token = get_post('token');       
+
+// 受け取ったトークンを確認し、falseが返された場合はLOGIN_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(LOGIN_URL);
+}
 
 //一般ユーザーのログイン処理（失敗の場合、LOGIN_URLへリダイレクト）
 $user = login_as($db, $name, $password);

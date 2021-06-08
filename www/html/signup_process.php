@@ -17,6 +17,14 @@ $password = get_post('password');
 $password_confirmation = get_post('password_confirmation');
 //データベース接続
 $db = get_db_connect();
+// トークン情報取得
+$token = get_post('token');       
+
+// トークン確認でfalseを返された場合、SIGNUP_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(SIGNUP_URL);
+}
 //ユーザー登録処理（失敗：SIGNUP_URLへリダイレクト）
 try{
   $result = regist_user($db, $name, $password, $password_confirmation);

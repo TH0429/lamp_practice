@@ -18,6 +18,14 @@ $user = get_login_user($db);
 
 //商品情報取得
 $item_id = get_post('item_id');
+// トークン情報取得
+$token = get_post('token');       
+
+// トークン確認でfalseを返された場合、HOME_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(HOME_URL);
+}
 //カートに商品を追加
 if(add_cart($db,$user['user_id'], $item_id)){
   set_message('カートに商品を追加しました。');
