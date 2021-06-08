@@ -17,6 +17,13 @@ $db = get_db_connect();
 $user = get_login_user($db);
 //カートの商品を削除
 $cart_id = get_post('cart_id');
+$token = get_post('token');    
+
+//トークン確認でfalseを返された場合、CART_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(CART_URL);
+}
 
 if(delete_cart($db, $cart_id)){
   set_message('カートを削除しました。');

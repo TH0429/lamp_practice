@@ -23,6 +23,15 @@ if(is_admin($user) === false){
 $item_id = get_post('item_id');
 //商品在庫情報取得
 $stock = get_post('stock');
+// トークン情報取得
+$token = get_post('token');       
+
+// トークン確認でfalseを返された場合、ADMIN_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(ADMIN_URL);
+}
+
 //商品在庫数追加
 if(update_item_stock($db, $item_id, $stock)){
   set_message('在庫数を変更しました。');

@@ -18,6 +18,14 @@ $user = get_login_user($db);
 //カート情報更新
 $cart_id = get_post('cart_id');
 $amount = get_post('amount');
+$token = get_post('token');    
+
+//トークン確認でfalseを返された場合、CART_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(CART_URL);
+}
+
 
 if(update_cart_amount($db, $cart_id, $amount)){
   set_message('購入数を更新しました。');

@@ -23,8 +23,16 @@ $name = get_post('name');
 $price = get_post('price');
 $status = get_post('status');
 $stock = get_post('stock');
+// トークン情報取得
+$token = get_post('token');  
 
 $image = get_file('image');
+
+// トークン確認でfalseを返された場合、ADMIN_URLへリダイレクト
+if (is_valid_csrf_token($token) === false){
+  set_error('不正なアクセスが行われました。');
+  redirect_to(ADMIN_URL);
+}
 
 if(regist_item($db, $name, $price, $stock, $status, $image)){
   set_message('商品を登録しました。');

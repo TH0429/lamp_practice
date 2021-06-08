@@ -14,6 +14,8 @@ if(is_logined() === false){
 $db = get_db_connect();
 //ログインしたユーザーの情報を取得
 $user = get_login_user($db);
+//トークン情報取得
+$token = get_csrf_token();
 //adminユーザーでなかった場合、LOGIN_URLへリダイレクト
 if(is_admin($user) === false){
   redirect_to(LOGIN_URL);
