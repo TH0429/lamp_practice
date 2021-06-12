@@ -1,4 +1,4 @@
---購入明細テーブル
+--購入履歴テーブル
 CREATE TABLE `histories` (
     `order_id` int(11) NOT NULL,
     `user_id` int(11) NOT NULL,
@@ -14,7 +14,7 @@ ALTER TABLE `histories`
 ALTER TABLE `histories`
   MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT,
 
---購入詳細テーブル
+--購入明細テーブル
 CREATE TABLE `details` (
     `order_id` int(11) NOT NULL,
     `item_id` int(11) NOT NULL,
