@@ -2,8 +2,7 @@
 //MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
-require_once MODEL_PATH . 'histories.php';
-require_once MODEL_PATH . 'details.php';
+
 //引数として使用するユーザーのカート情報取得
 function get_user_carts($db, $user_id){
   $sql = "
@@ -28,6 +27,7 @@ function get_user_carts($db, $user_id){
   ";
   return fetch_all_query($db, $sql,array($user_id));
 }
+
 //DBの接続情報、ユーザーID、商品IDを渡してカート内の特定の商品の情報を返す
 function get_user_cart($db, $user_id, $item_id){
   $sql = "
@@ -56,6 +56,7 @@ function get_user_cart($db, $user_id, $item_id){
   return fetch_query($db, $sql, array($user_id, $item_id));
 
 }
+
 //カート内の商品の個数変更
 function add_cart($db, $user_id, $item_id ) {
   $cart = get_user_cart($db, $user_id, $item_id);
@@ -64,6 +65,7 @@ function add_cart($db, $user_id, $item_id ) {
   }
   return update_cart_amount($db, $cart['cart_id'], $cart['amount'] + 1);
 }
+
 //カートに情報を追加
 function insert_cart($db, $user_id, $item_id, $amount = 1){
   $sql = "
@@ -78,6 +80,7 @@ function insert_cart($db, $user_id, $item_id, $amount = 1){
 
   return execute_query($db, $sql, array($item_id, $user_id, $amount));
 }
+
 //追加処理
 function update_cart_amount($db, $cart_id, $amount){
   $sql = "
@@ -91,6 +94,7 @@ function update_cart_amount($db, $cart_id, $amount){
   ";
   return execute_query($db, $sql, array($amount, $cart_id));
 }
+
 //カート内の商品を削除
 function delete_cart($db, $cart_id){
   $sql = "
@@ -103,6 +107,7 @@ function delete_cart($db, $cart_id){
 
   return execute_query($db, $sql, array($cart_id));
 }
+
 //データベース接続情報、カート情報を渡し、validate_cart_purchaseがfalseの場合falseを返す
 function purchase_carts($db, $carts){
   if(validate_cart_purchase($carts) === false){
