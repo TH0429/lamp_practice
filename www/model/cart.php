@@ -3,7 +3,6 @@
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
 
-//引数として使用するユーザーのカート情報取得
 function get_user_carts($db, $user_id){
   $sql = "
     SELECT
@@ -29,6 +28,7 @@ function get_user_carts($db, $user_id){
 }
 
 //DBの接続情報、ユーザーID、商品IDを渡してカート内の特定の商品の情報を返す
+//そのユーザーIDでその商品IDがcartsテーブルに登録されていない時はfalseを返す
 function get_user_cart($db, $user_id, $item_id){
   $sql = "
     SELECT
@@ -57,7 +57,6 @@ function get_user_cart($db, $user_id, $item_id){
 
 }
 
-//カート内の商品の個数変更
 function add_cart($db, $user_id, $item_id ) {
   $cart = get_user_cart($db, $user_id, $item_id);
   if($cart === false){
@@ -66,7 +65,6 @@ function add_cart($db, $user_id, $item_id ) {
   return update_cart_amount($db, $cart['cart_id'], $cart['amount'] + 1);
 }
 
-//カートに情報を追加
 function insert_cart($db, $user_id, $item_id, $amount = 1){
   $sql = "
     INSERT INTO
@@ -81,7 +79,6 @@ function insert_cart($db, $user_id, $item_id, $amount = 1){
   return execute_query($db, $sql, array($item_id, $user_id, $amount));
 }
 
-//追加処理
 function update_cart_amount($db, $cart_id, $amount){
   $sql = "
     UPDATE
@@ -95,7 +92,6 @@ function update_cart_amount($db, $cart_id, $amount){
   return execute_query($db, $sql, array($amount, $cart_id));
 }
 
-//カート内の商品を削除
 function delete_cart($db, $cart_id){
   $sql = "
     DELETE FROM
@@ -108,7 +104,6 @@ function delete_cart($db, $cart_id){
   return execute_query($db, $sql, array($cart_id));
 }
 
-//データベース接続情報、カート情報を渡し、validate_cart_purchaseがfalseの場合falseを返す
 function purchase_carts($db, $carts){
   if(validate_cart_purchase($carts) === false){
     return false;
@@ -150,35 +145,6 @@ function purchase_carts($db, $carts){
   return true;
 }
 
-//データベース接続情報、ユーザー情報を渡し商品履歴に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
-function insert_history($db, $user_id){
-  $sql = "
-   INSERT INTO
-     histories(
-       user_id
-     )
-   VALUES(?)
-   ";
-
- return execute_query($db, $sql, array($user_id));
-}
-
-//データベース接続情報、注文番号情報、商品ID、商品の在庫数情報、商品の価格情報を渡し商品明細に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
-function insert_detail($db, $order_id, $item_id, $amount, $price){
-  $sql = "
-    INSERT INTO
-    details(
-        order_id,
-        item_id,
-        amount,
-        price
-      )
-    VALUES(?, ?, ?, ?)
-  ";  
-  return execute_query($db, $sql, array($order_id, $item_id, $amount, $price));  
-}
-
-//カート情報を削除
 function delete_user_carts($db, $user_id){
   $sql = "
     DELETE FROM
@@ -190,7 +156,7 @@ function delete_user_carts($db, $user_id){
   execute_query($db, $sql, array($user_id));
 }
 
-//カート内の商品の合計金額を表示
+//カート情報を渡し、カート内の商品の合計金額を返す(値段×購入数)
 function sum_carts($carts){
   $total_price = 0;
   foreach($carts as $cart){
@@ -198,7 +164,10 @@ function sum_carts($carts){
   }
   return $total_price;
 }
-//商品が購入できるか検証
+//カートの中身を確認してカート内に商品がなければfalseを返す
+//カートの中身を確認して商品が公開されていないならfalseを返し、商品の在庫数からカート内の商品の個数を引いた数が１未満の場合falseを返す
+//エラーがある場合、falseを返す
+//カート内に商品があり、その商品が公開されている商品かつ購入数が在庫数を上回っており、エラーがない場合trueを返す
 function validate_cart_purchase($carts){
   if(count($carts) === 0){
     set_error('カートに商品が入っていません。');

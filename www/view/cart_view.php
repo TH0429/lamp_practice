@@ -27,9 +27,9 @@
         <tbody>
           <?php foreach($carts as $cart){ ?>
           <tr>
-            <td><img src="<?php print(IMAGE_PATH . $cart['image']);?>" class="item_image"></td>
-            <td><?php print($cart['name']); ?></td>
-            <td><?php print(number_format($cart['price'])); ?>円</td>
+            <td><img src="<?php print(IMAGE_PATH . h($cart['image']));?>" class="item_image"></td>
+            <td><?php print(h($cart['name'])); ?></td>
+            <td><?php print(h(number_format($cart['price']))); ?>円</td>
             <td>
               <form method="post" action="cart_change_amount.php">
                 <input type="number" name="amount" value="<?php print($cart['amount']); ?>">
@@ -39,7 +39,7 @@
                 <input type="hidden" name="token" value="<?php print($token); ?>">
               </form>
             </td>
-            <td><?php print(number_format($cart['price'] * $cart['amount'])); ?>円</td>
+            <td><?php print(h(number_format($cart['price'] * $cart['amount']))); ?>円</td>
             <td>
 
               <form method="post" action="cart_delete_cart.php">

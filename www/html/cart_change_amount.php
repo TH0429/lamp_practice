@@ -7,7 +7,7 @@ require_once MODEL_PATH . 'item.php';
 require_once MODEL_PATH . 'cart.php';
 //セッション開始
 session_start();
-//ログイン失敗の場合、LOGIN_URLへリダイレクト
+//ログインしていない場合、LOGIN_URLへリダイレクト
 if(is_logined() === false){
   redirect_to(LOGIN_URL);
 }
@@ -15,7 +15,7 @@ if(is_logined() === false){
 $db = get_db_connect();
 //ログインしたユーザーの情報を取得
 $user = get_login_user($db);
-//カート情報更新
+//カートの商品個数更新
 $cart_id = get_post('cart_id');
 $amount = get_post('amount');
 $token = get_post('token');    
