@@ -2,6 +2,8 @@
 //MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
+require_once MODEL_PATH . 'histories.php';
+require_once MODEL_PATH . 'details.php';
 //引数として使用するユーザーのカート情報取得
 function get_user_carts($db, $user_id){
   $sql = "
@@ -101,23 +103,76 @@ function delete_cart($db, $cart_id){
 
   return execute_query($db, $sql, array($cart_id));
 }
-//商品購入できるか検証（商品在庫が購入数を上回っていないか）
+//データベース接続情報、カート情報を渡し、validate_cart_purchaseがfalseの場合falseを返す
 function purchase_carts($db, $carts){
   if(validate_cart_purchase($carts) === false){
     return false;
   }
-  foreach($carts as $cart){
-    if(update_item_stock(
-        $db, 
-        $cart['item_id'], 
-        $cart['stock'] - $cart['amount']
-      ) === false){
-      set_error($cart['name'] . 'の購入に失敗しました。');
+  //商品が購入できる場合、購入履歴・購入明細へデータを追加、在庫数の更新、カート情報を削除するトランザクション処理を実行する
+  //トランザクション処理開始
+  $db->beginTransaction();
+    //購入履歴に情報を追加できなかった場合、トランザクション処理を取り消しfalseを返す
+    if (insert_history($db, $carts[0]['user_id']) === false) {
+      $db->rollback();
+      return false;
     }
+    //注文番号情報を取得
+    $order_id = $db->lastInsertId('order_id');
+    foreach($carts as $cart){
+      //購入明細に情報が追加できなかった場合、トランザクション処理を取り消しfalseを返す
+      if (insert_detail($db, $order_id, $cart['item_id'], $cart['amount'], $cart['price']) === false) {
+        $db->rollback();
+        return false;
+      }
+      //商品在庫を更新できなかった場合、トランザクション処理を取り消しfalseを返す
+      if(update_item_stock(
+          $db, 
+          $cart['item_id'], 
+          $cart['stock'] - $cart['amount']
+        ) === false){
+        $db->rollback();
+        set_error($cart['name'] . 'の購入に失敗しました。');
+        return false;
+      }
+    }
+    //カートの削除ができなかった場合、トランザクション処理を取り消しfalseを返す
+    if (delete_user_carts($db, $carts[0]['user_id']) === false) {
+    $db->rollback();
+    return false;
   }
-  
-  delete_user_carts($db, $carts[0]['user_id']);
+  //一連のトランザクション処理全てにalseが返されなかった場合処理を確定しtrueを返す
+  $db->commit();
+  return true;
 }
+
+//データベース接続情報、ユーザー情報を渡し商品履歴に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
+function insert_history($db, $user_id){
+  $sql = "
+   INSERT INTO
+     histories(
+       user_id
+     )
+   VALUES(?)
+   ";
+
+ return execute_query($db, $sql, array($user_id));
+}
+
+//データベース接続情報、注文番号情報、商品ID、商品の在庫数情報、商品の価格情報を渡し商品明細に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
+function insert_detail($db, $order_id, $item_id, $amount, $price){
+  $sql = "
+    INSERT INTO
+    details(
+        order_id,
+        item_id,
+        amount,
+        price
+      )
+    VALUES(?, ?, ?, ?)
+  ";  
+  return execute_query($db, $sql, array($order_id, $item_id, $amount, $price));  
+}
+
 //カート情報を削除
 function delete_user_carts($db, $user_id){
   $sql = "
