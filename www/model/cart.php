@@ -2,7 +2,7 @@
 //MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
-//DBの接続情報、ユーザーIDを引数として渡し、使用するユーザーのカート情報を返す
+
 function get_user_carts($db, $user_id){
   $sql = "
     SELECT
@@ -26,6 +26,7 @@ function get_user_carts($db, $user_id){
   ";
   return fetch_all_query($db, $sql,array($user_id));
 }
+
 //DBの接続情報、ユーザーID、商品IDを渡してカート内の特定の商品の情報を返す
 //そのユーザーIDでその商品IDがcartsテーブルに登録されていない時はfalseを返す
 function get_user_cart($db, $user_id, $item_id){
@@ -55,7 +56,7 @@ function get_user_cart($db, $user_id, $item_id){
   return fetch_query($db, $sql, array($user_id, $item_id));
 
 }
-//DBの接続情報、ユーザーID、商品IDを渡してカート内の商品の個数を１個増やした状態で成功した場合はtrue、失敗した場合はfalseを返す
+
 function add_cart($db, $user_id, $item_id ) {
   $cart = get_user_cart($db, $user_id, $item_id);
   if($cart === false){
@@ -63,7 +64,7 @@ function add_cart($db, $user_id, $item_id ) {
   }
   return update_cart_amount($db, $cart['cart_id'], $cart['amount'] + 1);
 }
-//データベース接続情報、ユーザーID、商品ID、商品の個数情報を渡しカートに商品情報とその商品の個数を追加して成功した場合はtrue、失敗した場合はfalseを返す
+
 function insert_cart($db, $user_id, $item_id, $amount = 1){
   $sql = "
     INSERT INTO
@@ -77,7 +78,7 @@ function insert_cart($db, $user_id, $item_id, $amount = 1){
 
   return execute_query($db, $sql, array($item_id, $user_id, $amount));
 }
-//データベース接続情報、カートID、個数情報を渡しカート内の商品の個数を追加して成功した場合はtrue、失敗した場合はfalseを返す
+
 function update_cart_amount($db, $cart_id, $amount){
   $sql = "
     UPDATE
@@ -90,7 +91,7 @@ function update_cart_amount($db, $cart_id, $amount){
   ";
   return execute_query($db, $sql, array($amount, $cart_id));
 }
-//データベース接続情報とカートIDを渡しカート内の商品を削除し成功した場合はtrue、失敗した場合はfalseを返す
+
 function delete_cart($db, $cart_id){
   $sql = "
     DELETE FROM
@@ -102,25 +103,48 @@ function delete_cart($db, $cart_id){
 
   return execute_query($db, $sql, array($cart_id));
 }
-//データベース接続情報、カート情報を渡し、validate_cart_purchaseがfalseの場合falseを返す
-//ユーザーのカート内情報とカート情報を確認して商品IDと商品購入数に問題がなければユーザーのカート情報を削除する
+
 function purchase_carts($db, $carts){
   if(validate_cart_purchase($carts) === false){
     return false;
   }
-  foreach($carts as $cart){
-    if(update_item_stock(
-        $db, 
-        $cart['item_id'], 
-        $cart['stock'] - $cart['amount']
-      ) === false){
-      set_error($cart['name'] . 'の購入に失敗しました。');
+  //商品が購入できる場合、購入履歴・購入明細へデータを追加、在庫数の更新、カート情報を削除するトランザクション処理を実行する
+  //トランザクション処理開始
+  $db->beginTransaction();
+    //購入履歴に情報を追加できなかった場合、トランザクション処理を取り消しfalseを返す
+    if (insert_history($db, $carts[0]['user_id']) === false) {
+      $db->rollback();
+      return false;
     }
+    //注文番号情報を取得
+    $order_id = $db->lastInsertId('order_id');
+    foreach($carts as $cart){
+      //購入明細に情報が追加できなかった場合、トランザクション処理を取り消しfalseを返す
+      if (insert_detail($db, $order_id, $cart['item_id'], $cart['amount'], $cart['price']) === false) {
+        $db->rollback();
+        return false;
+      }
+      //商品在庫を更新できなかった場合、トランザクション処理を取り消しfalseを返す
+      if(update_item_stock(
+          $db, 
+          $cart['item_id'], 
+          $cart['stock'] - $cart['amount']
+        ) === false){
+        $db->rollback();
+        set_error($cart['name'] . 'の購入に失敗しました。');
+        return false;
+      }
+    }
+    //カートの削除ができなかった場合、トランザクション処理を取り消しfalseを返す
+    if (delete_user_carts($db, $carts[0]['user_id']) === false) {
+    $db->rollback();
+    return false;
   }
-  
-  delete_user_carts($db, $carts[0]['user_id']);
+  //一連のトランザクション処理全てにalseが返されなかった場合処理を確定しtrueを返す
+  $db->commit();
+  return true;
 }
-//データベース接続情報、ユーザーIDを渡しカート情報を削除
+
 function delete_user_carts($db, $user_id){
   $sql = "
     DELETE FROM
