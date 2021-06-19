@@ -2,6 +2,7 @@
 //MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
+require_once MODEL_PATH . 'history.php';
 
 //引数として使用するユーザーのカート情報取得
 function get_user_carts($db, $user_id){
@@ -148,34 +149,6 @@ function purchase_carts($db, $carts){
   //一連のトランザクション処理全てにalseが返されなかった場合処理を確定しtrueを返す
   $db->commit();
   return true;
-}
-
-//データベース接続情報、ユーザー情報を渡し商品履歴に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
-function insert_history($db, $user_id){
-  $sql = "
-   INSERT INTO
-     histories(
-       user_id
-     )
-   VALUES(?)
-   ";
-
- return execute_query($db, $sql, array($user_id));
-}
-
-//データベース接続情報、注文番号情報、商品ID、商品の在庫数情報、商品の価格情報を渡し商品明細に情報を追加し成功した場合はtrue、失敗した場合はfalseを返す
-function insert_detail($db, $order_id, $item_id, $amount, $price){
-  $sql = "
-    INSERT INTO
-    details(
-        order_id,
-        item_id,
-        amount,
-        price
-      )
-    VALUES(?, ?, ?, ?)
-  ";  
-  return execute_query($db, $sql, array($order_id, $item_id, $amount, $price));  
 }
 
 //カート情報を削除
