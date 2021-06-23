@@ -15,10 +15,12 @@ function get_db_connect(){
   }
   return $dbh;
 }
-//データベース内のクエリ呼び出し
+//データベース接続情報、実行したいsql文（SELECT文）を渡すとデータがある場合はそのデータを連想配列で返し、データがない場合はfalseを返す
 function fetch_query($db, $sql, $params = array()){
   try{
+     //sql文を実行する準備
     $statement = $db->prepare($sql);
+    //sqlを実行
     $statement->execute($params);
     return $statement->fetch();
   }catch(PDOException $e){
@@ -26,10 +28,12 @@ function fetch_query($db, $sql, $params = array()){
   }
   return false;
 }
-//データベースの全てのクエリ呼び出し
+//データベース接続情報、実行したいsql文（SELECT文）を渡すと全てのデータを連想配列で返し、データがない場合はfalseを返す
 function fetch_all_query($db, $sql, $params = array()){
   try{
+     //sql文を実行する準備
     $statement = $db->prepare($sql);
+    //sqlを実行
     $statement->execute($params);
     return $statement->fetchAll();
   }catch(PDOException $e){
@@ -37,10 +41,12 @@ function fetch_all_query($db, $sql, $params = array()){
   }
   return false;
 }
-//データベース内のクエリ実行
+//データベース接続情報、実行したいsql文（SELECT文）を渡すと配列を実行し、データがない場合はfalseを返す
 function execute_query($db, $sql, $params = array()){
   try{
+     //SQL文を実行する準備
     $statement = $db->prepare($sql);
+    //sqlを実行
     return $statement->execute($params);
   }catch(PDOException $e){
     set_error('更新に失敗しました。'.$e);

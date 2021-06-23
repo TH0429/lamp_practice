@@ -5,7 +5,7 @@ require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'user.php';
 //セッション開始
 session_start();
-//ログイン失敗の場合、LOGIN_URLへリダイレクト
+//ログインしていない場合、LOGIN_URLへリダイレクト
 if(is_logined() === true){
   redirect_to(HOME_URL);
 }
