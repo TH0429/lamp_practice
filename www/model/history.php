@@ -55,7 +55,7 @@ function insert_history($db, $user_id){
     $sql = "
     SELECT
       histories.order_id,
-      histories.created,
+      histories.purchased_datetime,
       histories.user_id,
       SUM(details.amount * details.price) AS total_price
     FROM
