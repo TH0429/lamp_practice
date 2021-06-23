@@ -2,6 +2,7 @@
 //MODELファイル読み込み
 require_once MODEL_PATH . 'functions.php';
 require_once MODEL_PATH . 'db.php';
+require_once MODEL_PATH . 'history.php';
 
 function get_user_carts($db, $user_id){
   $sql = "
