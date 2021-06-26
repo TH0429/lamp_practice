@@ -32,7 +32,7 @@
         <?php foreach ($histories as $history){ ?>
         <tr>
             <td><?php print h($history['order_id']);?></td>   
-            <td><?php print h($history['purchase_datetime']);?></td>   
+            <td><?php print h($history['purchased_datetime']);?></td>   
             <td><?php print h($history['total_price']); ?></td>  
             <td>
                 <form method="post" action="details.php">
