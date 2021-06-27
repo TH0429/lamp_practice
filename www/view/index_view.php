@@ -45,6 +45,41 @@
       </div>
     </div>
   </div>
-  
+
+  <div class="container item" >
+    <h1>人気ランキング</h1>
+    <table class="table table-bordered">
+      <tr>
+        <th>第1位</th>
+        <th>第2位</th>
+        <th>第3位</th>
+      </tr>
+      <tr>
+        <?php foreach($rankings as $ranking){ ?>
+
+        <td class="text-center">
+          <?php print(h($ranking['name'])); ?>
+        </td>
+        <?php }; ?>
+      </tr>
+      <tr>
+        <?php foreach($rankings as $ranking){ ?>
+
+        <td>
+          <img class="card-img" src = "<?php print IMAGE_PATH.$ranking['image']; ?>">
+        </td>
+        <?php }; ?>
+      </tr>
+      <tr>
+        <?php foreach($rankings as $ranking){ ?>
+
+        <td class="text-center">
+          <?php print number_format($ranking['price']); ?>円
+        </td>
+        <?php }; ?>
+      </tr>
+    </table>
+  </div>
+
 </body>
 </html>

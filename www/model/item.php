@@ -206,3 +206,27 @@ function is_valid_item_status($status){
   }
   return $is_valid;
 }
+function get_ranking($db){
+  $sql = "
+  SELECT 
+    details.item_id, 
+    items.name,
+    items.price,
+    items.image,
+    SUM(details.amount) AS total_amount
+  FROM
+    details
+  JOIN
+    items
+  ON
+    details.item_id = items.item_id
+  GROUP BY
+    details.item_id
+  ORDER BY 
+    SUM(details.amount) DESC
+  LIMIT
+    3
+  ";
+
+  return fetch_all_query($db,$sql);
+}
